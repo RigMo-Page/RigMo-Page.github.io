@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="PhysRig: Differentiable Physics-Based Skinning and Rigging Framework for Realistic Articulated Object Modeling.">
+  <meta name="keywords" content="Rigging, Physic Simulation, Differentiable Simulation">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PhysRig: Differentiable Physics-Based Skinning and Rigging Framework for Realistic Articulated Object Modeling.</title>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/icon.png">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <!-- ✨ Clean & Minimal Design -->
+  <style>
+    /* Clean design system */
+    :root {
+      --primary-color: #2563eb;
+      --primary-light: #3b82f6;
+      --primary-dark: #1d4ed8;
+      --accent-color: #10b981;
+      --text-primary: #111827;
+      --text-secondary: #6b7280;
+      --text-muted: #9ca3af;
+      --border-color: #e5e7eb;
+      --border-light: #f3f4f6;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    /* Clean white background */
+    body {
+      background: #ffffff;
+      color: var(--text-primary);
+      font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      padding-top: 3.5rem;
+    }
+
+    /* Minimal navigation */
+    .navbar {
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .navbar-brand .navbar-item {
+      font-weight: 600;
+      color: var(--text-primary) !important;
+    }
+
+    .navbar-item {
+      color: var(--text-secondary) !important;
+      transition: all 0.2s ease;
+    }
+
+    .navbar-item:hover {
+      color: var(--primary-color) !important;
+      background: var(--border-light) !important;
+    }
+
+    .navbar-burger {
+      color: var(--text-primary) !important;
+    }
+
+    .navbar-burger:hover {
+      background: var(--border-light) !important;
+    }
+
+    /* Clean hero section */
+    .hero {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+      padding: 3rem 0;
+    }
+
+    .publication-title {
+      color: var(--text-primary);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 2rem !important;
+    }
+
+    .publication-title img {
+      filter: none;
+    }
+
+    /* Author styling */
+    .publication-authors {
+      margin-bottom: 1rem;
+      color: var(--text-secondary);
+    }
+
+    .publication-authors a {
+      color: var(--primary-color) !important;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .publication-authors a:hover {
+      color: var(--primary-dark) !important;
+    }
+
+    /* Institution logos - minimal style */
+    .affiliation-wrap {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .inst-logos {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .inst-logos a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .inst-logos a:hover {
+      transform: translateY(-2px);
+    }
+
+    .inst-logos img {
+      height: 48px;
+      max-width: 180px;
+      object-fit: contain;
+    }
+
+    .inst-logos .illinois-bg {
+      background-color: #13294B;
+      padding: 0.5rem 0.75rem;
+      border: none;
+    }
+
+    /* Clean button styling */
+    .publication-links .button {
+      background: #374151 !important;
+      border: none !important;
+      color: white !important;
+      margin: 0.25rem;
+      font-weight: 500;
+      border-radius: var(--radius);
+      transition: all 0.2s ease;
+    }
+
+    .publication-links .button:hover {
+      background: #1f2937 !important;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Conference badge with ICCV logo */
+    .conference-badge-link {
+      display: inline-block;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .conference-badge-link:hover {
+      transform: translateY(-1px);
+    }
+
+    .conference-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 1.25rem;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 2rem;
+      box-shadow: var(--shadow-sm);
+      margin-top: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .conference-badge-link:hover .conference-badge {
+      border-color: var(--primary-color);
+      box-shadow: var(--shadow-md);
+    }
+
+    .conference-logo {
+      height: 56px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .conference-text {
+      text-align: left;
+    }
+
+    .conference-status {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .conference-name {
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    /* Legacy conference badge (keep for compatibility) */
+    .has-text-weight-semibold.is-size-5 {
+      background: #ffffff;
+      color: var(--text-primary) !important;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      display: inline-block;
+      font-weight: 600;
+      margin-top: 1rem !important;
+    }
+
+    /* Clean message box */
+    .box.has-background-light {
+      background: #ffffff !important;
+      color: var(--text-primary) !important;
+      border: 1px solid var(--border-color) !important;
+      border-radius: var(--radius-lg) !important;
+      box-shadow: var(--shadow-sm) !important;
+      padding: 2rem;
+    }
+
+    .box.has-background-light .title {
+      color: var(--text-primary) !important;
+      margin-bottom: 1rem;
+    }
+
+    .box.has-background-light .subtitle {
+      color: var(--text-secondary) !important;
+    }
+
+    .box.has-background-light ul {
+      background: var(--border-light);
+      padding: 1rem;
+      border-radius: var(--radius);
+      margin: 1rem 0;
+      border-left: 3px solid var(--primary-color);
+    }
+
+    /* Clean sections */
+    .section {
+      background: #ffffff;
+      margin: 0;
+      box-shadow: none;
+      border: none;
+      padding: 3rem 0;
+    }
+
+    .section:nth-child(even) {
+      background: #fafafa;
+    }
+
+    /* Clean figure styling */
+    .columns figure.image {
+      background: white;
+      padding: 1rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border-color);
+      transition: all 0.2s ease;
+    }
+
+    .columns figure.image:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .columns figure.image img {
+      border-radius: var(--radius);
+    }
+
+    /* Teaser figure (Figure 1) without border */
+    .teaser-figure {
+      background: none !important;
+      padding: 0 !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    .teaser-figure:hover {
+      box-shadow: none !important;
+      transform: none !important;
+    }
+
+    .teaser-figure img {
+      border-radius: 0 !important;
+    }
+
+    /* Clean figure captions */
+    .is-size-6.has-text-grey {
+      color: var(--text-secondary) !important;
+      line-height: 1.6;
+      margin-top: 1rem !important;
+      padding: 1rem;
+      background: var(--border-light);
+      border-radius: var(--radius);
+      border-left: 3px solid var(--primary-color);
+    }
+
+    .is-size-6.has-text-grey span:first-child {
+      color: var(--text-primary) !important;
+      font-weight: 600;
+    }
+
+    /* Video section - minimal */
+    .video-section {
+      background: var(--border-light);
+      padding: 2rem;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+    }
+
+    .video-section .title {
+      color: var(--text-primary) !important;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .video-container {
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-color);
+    }
+
+    .columns video {
+      border-radius: var(--radius) !important;
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Abstract section */
+    .content.is-size-6 {
+      background: #ffffff;
+      padding: 2rem;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+    }
+
+    .content.is-size-6 p {
+      margin-bottom: 1.5rem;
+      line-height: 1.7;
+      color: var(--text-primary);
+    }
+
+    /* Clean notification */
+    .notification.is-success.is-light {
+      background: #ffffff !important;
+      color: var(--text-primary) !important;
+      border: 1px solid var(--border-color) !important;
+      border-radius: var(--radius-lg) !important;
+      box-shadow: var(--shadow-sm) !important;
+      font-weight: 500;
+      border-left: 4px solid var(--accent-color) !important;
+    }
+
+    /* BibTeX section - minimal dark */
+    #BibTeX {
+      background: var(--text-primary);
+      color: white;
+      border-radius: var(--radius-lg);
+      margin-top: 3rem;
+    }
+
+    #BibTeX .title {
+      color: white !important;
+      font-weight: 600;
+    }
+
+    #BibTeX pre {
+      background: rgba(255, 255, 255, 0.05) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+
+    #BibTeX code {
+      color: #e5e7eb !important;
+      font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+      font-size: 0.9rem;
+    }
+
+    /* Footer - minimal */
+    .footer {
+      background: #f9fafb !important;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border-color);
+      box-shadow: none;
+    }
+
+    .footer a {
+      color: var(--text-secondary) !important;
+      transition: color 0.2s ease;
+    }
+
+    .footer a:hover {
+      color: var(--primary-color) !important;
+    }
+
+    .footer .icon-link {
+      color: var(--text-muted) !important;
+      font-size: 1.25rem;
+      transition: color 0.2s ease;
+    }
+
+    .footer .icon-link:hover {
+      color: var(--primary-color) !important;
+    }
+
+    /* Section titles - clean */
+    .title.is-3, .title.is-4 {
+      color: var(--text-primary);
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 2rem !important;
+      background: none;
+      -webkit-text-fill-color: initial;
+    }
+
+    /* Smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    section[id] {
+      scroll-margin-top: 4rem;
+    }
+
+    /* Clean navbar end alignment */
+    .navbar-end {
+      align-items: center;
+    }
+
+    .navbar-end .navbar-item {
+      margin: 0 0.25rem;
+      border-radius: var(--radius);
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .publication-title {
+        font-size: 1.75rem !important;
+        line-height: 1.3 !important;
+      }
+      
+      .inst-logos {
+        gap: 1rem;
+      }
+      
+      .inst-logos img {
+        height: 40px;
+      }
+      
+      body {
+        padding-top: 3rem;
+      }
+
+      .navbar-menu {
+        box-shadow: var(--shadow-md);
+        background: white !important;
+        border-top: 1px solid var(--border-color);
+      }
+
+      .navbar-end {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .navbar-end .navbar-item {
+        margin: 0;
+        padding: 0.75rem 1rem;
+        text-align: center;
+        border-bottom: 1px solid var(--border-light);
+      }
+
+      .navbar-end .navbar-item:last-child {
+        border-bottom: none;
+      }
+
+      .conference-badge {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+        padding: 1rem;
+      }
+
+      .conference-logo {
+        height: 48px;
+      }
+
+      .conference-text {
+        text-align: center;
+      }
+
+      .conference-name {
+        font-size: 1rem !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .publication-title {
+        font-size: 1.5rem !important;
+      }
+      
+      .publication-authors {
+        font-size: 0.9rem !important;
+      }
+      
+      .button {
+        font-size: 0.85rem !important;
+        padding: 0.5rem 0.75rem !important;
+      }
+      
+      .video-section, .content.is-size-6 {
+        padding: 1.5rem;
+      }
+      
+      .inst-logos img {
+        height: 36px;
+      }
+
+      .conference-badge {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+      }
+
+      .conference-logo {
+        height: 44px;
+      }
+
+      .conference-text {
+        text-align: center;
+      }
+
+      .conference-status {
+        font-size: 0.8rem;
+      }
+
+      .conference-name {
+        font-size: 0.9rem !important;
+      }
+    }
+
+    /* Minimal animations */
+    .columns figure.image {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .columns figure.image:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Clean typography */
+    h1, h2, h3, h4, h5, h6 {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    p {
+      color: var(--text-primary);
+    }
+
+    strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+  </style>
+</head>
+<body>
+
+<nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="#" style="font-weight: bold;">
+      <img src="./static/images/icon.png" style="height: 28px; margin-right: 0.5rem;">
+      PhysRig
+    </a>
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMenu">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarMenu" class="navbar-menu">
+    <div class="navbar-end">
+      <a class="navbar-item" href="https://arxiv.org/pdf/2506.20936" target="_blank">
+        <span class="icon"><i class="fas fa-file-pdf"></i></span>
+        <span>Paper</span>
+      </a>
+      <a class="navbar-item" href="https://github.com/haoz19/PhysRig" target="_blank">
+        <span class="icon"><i class="fab fa-github"></i></span>
+        <span>Code</span>
+      </a>
+      <a class="navbar-item" href="https://haoz19.github.io/" target="_blank">
+        <span class="icon"><i class="fas fa-user"></i></span>
+        <span>Author</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">
+            <img src="./static/images/icon.png" style="height: 1.2em; vertical-align: middle; margin-right: 0.2em;">
+            PhysRig: Differentiable Physics-Based Skinning and Rigging Framework for Realistic Articulated Object Modeling
+          </h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://haoz19.github.io/">Hao Zhang</a><sup>1, *</sup>,</span>
+            <span class="author-block">
+              <a href="https://jamesdemon923.github.io/">Haolan Xu</a><sup>1, *</sup>,</span>
+            <span class="author-block">
+              <a href="https://chunfeng3364.github.io/">Chun Feng</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://varunjampani.github.io/">Varun Jampani</a><sup>2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://vision.ai.illinois.edu/narendra-ahuja/">Narendra Ahuja</a><sup>1</sup>
+            </span>
+          </div>
+          
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>University of Illinois Urbana-Champaign,</span>
+            <span class="author-block"><sup>2</sup>Stability AI</span>
+          </div>
+
+          <!-- ✨ Enhanced Institution icons -->
+          <div class="affiliation-wrap">
+            <div class="inst-logos">
+              <a href="https://illinois.edu" target="_blank" rel="noopener" aria-label="UIUC">
+                <img class="illinois-bg" src="./static/images/illinois_primary_wordmark_reversed_orange.svg" alt="University of Illinois Urbana-Champaign">
+              </a>
+              <a href="https://stability.ai" target="_blank" rel="noopener" aria-label="Stability AI">
+                <img src="./static/images/stability_logo.jpg" alt="Stability AI">
+              </a>
+            </div>
+          </div>
+          
+          <p class="has-text-centered is-size-6 mt-2"><sup>*</sup>Equal contribution</p>
+
+          <div class="has-text-centered mt-3">
+            <a href="https://iccv.thecvf.com/virtual/2025/poster/114" target="_blank" rel="noopener" class="conference-badge-link">
+              <div class="conference-badge">
+                <img src="./static/images/iccv-navbar-logo.svg" alt="ICCV Logo" class="conference-logo">
+                <div class="conference-text">
+                  <div class="conference-status">Accepted to</div>
+                  <div class="conference-name">International Conference on Computer Vision (ICCV) 2025</div>
+                </div>
+              </div>
+            </a>
+          </div>
+
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/2506.20936"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2506.20936"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/haoz19/PhysRig"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+              <!-- Dataset Link. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/2506.20936"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="far fa-images"></i>
+                  </span>
+                  <span>Data</span>
+                  </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <!-- 🎯 Highlighted Message -->
+    <div class="box has-background-light has-text-centered mb-5" style="border-left: 5px solid #3273dc;">
+      <h2 class="title is-4 has-text-weight-bold has-text-link">
+        🚀 Still using LBS for rigging?
+      </h2>
+      <h3 class="subtitle is-5 has-text-grey-dark">
+        Why not try a pure physics simulator instead?
+      </h3>
+      <p class="is-size-6 px-5">
+        Traditional <strong>Linear Blend Skinning (LBS)</strong> often fails under complex deformations and joint constraints.<br>
+        <strong>PhysRig</strong> introduces a fully physics-based rigging solution with:
+        <ul class="has-text-left mt-3" style="display: inline-block; text-align: left;">
+          <li>✅ Elastic material modeling for soft-body behaviors</li>
+          <li>✅ Constraint-aware dynamics that preserve physical plausibility</li>
+          <li>✅ Nonlinear motion responses across articulated topologies</li>
+        </ul>
+        <br>
+        All powered by a <span class="has-text-weight-semibold" style="color:#00c48c;">differentiable physics simulator</span>.
+      </p>
+    </div>
+
+    <!-- 🦖 Teaser Image -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full">
+        <figure class="image teaser-figure" style="margin: 0;">
+          <img src="./static/videos/fig1.png" alt="Teaser Image" style="width: 100%; height: auto; margin-bottom: 0.2rem;">
+        </figure>
+        <p class="is-size-6 has-text-grey" style="margin-top: 0rem; line-height: 1.4; max-width: 90%; margin-left: auto; margin-right: auto;">
+          <span style="font-weight: 600; color: #4a4a4a;">Figure 1.</span>
+          <span>PhysRig models articulated objects as soft-body volumes driven by embedded control points, enabling realistic deformations and dynamics across diverse topologies—from humanoids to dinosaurs.</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="container is-max-desktop" id="abstract">
+      <h2 class="title is-3 has-text-centered">Abstract</h2>
+      <div class="content is-size-6">
+        <p>
+          Skinning and rigging are fundamental components in animation, articulated object reconstruction, motion transfer, and 4D generation.
+          Existing approaches predominantly rely on Linear Blend Skinning (LBS), due to its simplicity and differentiability. However, LBS introduces artifacts such as volume loss and unnatural deformations, and it fails to model elastic materials like soft tissues, fur, and flexible appendages (e.g., elephant trunks, ears, and fatty tissues).
+        </p>
+        <p>
+          In this work, we propose <strong>PhysRig</strong>: a differentiable physics-based skinning and rigging framework that overcomes these limitations by embedding the rigid skeleton into a volumetric representation (e.g., a tetrahedral mesh), which is simulated as a deformable soft-body structure driven by the animated skeleton.
+          Our method leverages continuum mechanics and discretizes the object as particles embedded in an Eulerian background grid to ensure differentiability with respect to both material properties and skeletal motion.
+        </p>
+        <p>
+          Additionally, we introduce <strong>material prototypes</strong>, significantly reducing the learning space while maintaining high expressiveness. To evaluate our framework, we construct a comprehensive synthetic dataset using meshes from Objaverse, The Amazing Animals Zoo, and Mixamo, covering diverse object categories and motion patterns.
+          Our method consistently outperforms traditional LBS-based approaches, generating more realistic and physically plausible results.
+          Furthermore, we demonstrate the applicability of our framework in the pose transfer task, highlighting its versatility for articulated object modeling.
+        </p>
+      </div>
+    </div>
+
+
+    <div class="notification is-success is-light has-text-centered mt-6 is-size-5 has-text-weight-semibold">
+      ✅ The following results are <span class="has-text-weight-bold has-text-link-dark">LBS-free</span> and 
+      <span class="has-text-weight-bold has-text-success">100% driven by a differentiable physics simulator</span>.
+    </div>
+
+
+  </div>
+
+
+    <!-- Demo Video Section -->
+    <div class="columns is-centered has-text-centered mt-6">
+      <div class="column is-four-fifths">
+        <div class="video-section">
+          <h2 class="title is-4">
+            PhysRig Demo
+          </h2>
+          <div class="video-container">
+            <video controls autoplay muted loop playsinline 
+                   style="max-width: 100%; width: 100%; height: auto;">
+              <source src="./static/videos/PhysRig.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</section>
+
+<section class="section" id="results">
+  <div class="container is-max-desktop">
+    <!-- Figure 2 -->
+    <div class="columns is-centered has-text-centered mt-5">
+      <div class="column is-full">
+        <figure class="image">
+          <img src="./static/images/fig01.png" alt="Figure 2" style="width: 100%; height: auto;">
+        </figure>
+        <p class="is-size-6 has-text-grey" style="line-height: 1.5; margin-top: 0.5rem;">
+          <span style="font-weight: 600; color: #4a4a4a;">Figure 2.</span>
+          <span>Overview of PhysRig. Given a 3D object, we first compute coarse skinning weights, which initialize embedded driving points for local deformation control. These points, assigned velocities, are linked to an elastic 3D volume with material parameters governing deformation. The differentiable physics-based skinning module generates natural deformations, optimizing velocities and material properties via backward propagation. Finally, multi-view animations illustrate physically plausible shape deformations over time.</span>
+        </p>
+      </div>
+    </div>
+    
+    <!-- Figure 3 -->
+    <div class="columns is-centered has-text-centered mt-5">
+      <div class="column is-half">
+        <figure class="image">
+          <img src="./static/videos/iccv_fig5.png" alt="Figure 3" style="width: 100%; height: auto;">
+        </figure>
+        <p class="is-size-6 has-text-grey" style="line-height: 1.5; margin-top: 0.5rem;">
+          <span style="font-weight: 600; color: #4a4a4a;">Figure 3.</span>
+          <span>PhysRig enables pose transfer for generated objects.</span>
+        </p>
+      </div>
+    </div>
+    
+    <!-- Figure 4 -->
+    <div class="columns is-centered has-text-centered mt-5">
+      <div class="column is-full">
+        <figure class="image">
+          <img src="./static/videos/iccv-fig4.png" alt="Figure 4" style="width: 100%; height: auto;">
+        </figure>
+        <p class="is-size-6 has-text-grey" style="line-height: 1.5; margin-top: 0.5rem;">
+          <span style="font-weight: 600; color: #4a4a4a;">Figure 4.</span>
+          <span>Animation results from the PhysRig approach. These results are obtained from the inverse skinning problem by optimizing material properties and driving point velocities to minimize the deviation from the ground truth mesh sequence.</span>
+        </p>
+      </div>
+    </div>
+    
+    <!-- Figure 5 -->
+    <div class="columns is-centered has-text-centered mt-5">
+      <div class="column is-full">
+        <figure class="image">
+          <img src="./static/videos/fig4.png" alt="Figure 5" style="width: 100%; height: auto;">
+        </figure>
+        <p class="is-size-6 has-text-grey" style="line-height: 1.5; margin-top: 0.5rem;">
+          <span style="font-weight: 600; color: #4a4a4a;">Figure 5.</span>
+          <span>Comparison of the learned material properties with ground truth using our method.</span>
+        </p>
+      </div>
+    </div>
+    
+    <!-- Figure 6 -->
+    <div class="columns is-centered has-text-centered mt-5">
+      <div class="column is-four-fifths">
+        <figure class="image">
+          <img src="./static/videos/fig_a1.png" alt="Figure 6" style="width: 100%; height: auto;">
+        </figure>
+        <p class="is-size-6 has-text-grey" style="line-height: 1.5; margin-top: 0.5rem;">
+          <span style="font-weight: 600; color: #4a4a4a;">Figure 6.</span>
+          <span>Qualitative comparisons of PhysRig and neural linear blend skinning using ground truth skinning weights as initialization.</span>
+        </p>
+      </div>
+    </div>
+    
+    <!-- Figure 7 -->
+    <div class="columns is-centered has-text-centered mt-5">
+      <div class="column is-four-fifths">
+        <figure class="image">
+          <img src="./static/videos/iccv-fig8.png" alt="Figure 7" style="width: 100%; height: auto;">
+        </figure>
+        <p class="is-size-6 has-text-grey" style="line-height: 1.5; margin-top: 0.5rem;">
+          <span style="font-weight: 600; color: #4a4a4a;">Figure 7.</span>
+          <span>Visualization of material prototype centers learned by PhysRig.</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{zhang2025physrig,
+  title={PhysRig: Differentiable Physics-Based Skinning and Rigging Framework for Realistic Articulated Object Modeling},
+  author={Zhang, Hao and Xu, Haolan and Feng, Chun and Jampani, Varun and Ahuja, Narendra},
+  journal={arXiv preprint arXiv:2506.20936},
+  year={2025} 
+}</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="https://arxiv.org/pdf/2506.20936" class="external-link" disabled>
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://haoz19.github.io/" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            Website source code based on the Nerfies project page. If you want to reuse their <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a>, please credit them appropriately.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
